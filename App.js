@@ -1,12 +1,13 @@
 import React from 'react';
 import * as Expo from 'expo';
 import { Component } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { createAppContainer, createSwitchNavigator } from 'react-navigation';
 import LoginScreen from './screens/LoginScreen';
 import DashboardScreen from './screens/DashboardScreen';
 import LoadingScreen from './screens/LoadingScreen';
 import * as firebase from 'firebase';
+
 
 import {firebaseConfig} from './config.js';
 firebase.initializeApp( firebaseConfig);

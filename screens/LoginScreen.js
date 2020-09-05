@@ -1,15 +1,32 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, Button } from 'react-native';
+import { View, Text, StyleSheet, Button,Image,Dimensions } from 'react-native';
 import firebase from 'firebase';
 import * as Google from 'expo-google-app-auth';
+import {Asset} from 'expo-asset';
+import {AppLoading} from 'expo';
+//import Animated from 'react-native-reanimated';
+//import {TapGestureHandler,State} from 
+//'react-native-gesture-handler';
 
-//export default function LoginScreen(){
+
+
+const {width,height}=Dimensions.get('window');
+
+function cacheImages(images) {
+  return images.map(image => {
+    if (typeof image === 'string') {
+      return Image.prefetch(image);
+    } else {
+      return Asset.fromModule(image).downloadAsync();
+    }
+  });
+}
 class LoginScreen extends Component {
 
   isUserEqual = (googleUser, firebaseUser) => {
-    console.log ("this is login from firebase1")
-    if (firebaseUser) {
-      console.log ("this is login from firebase2")
+    //console.log ("this is login from firebase1")
+    if (firebaseUser) { 
+      //console.log ("this is login from firebase2")
       var providerData = firebaseUser.providerData;
       for (var i = 0; i < providerData.length; i++) {
         if (
@@ -55,7 +72,7 @@ class LoginScreen extends Component {
                     created_at: Date.now()
                   })
                   .then(function(snapshot) {
-                    //console.log('Snapshot', snapshot);
+                    console.log('Snapshot', snapshot);
                   });
               } else {
                 firebase
@@ -95,27 +112,73 @@ class LoginScreen extends Component {
       //console.log ("this is try")
 
       if (result.type === 'success') {
-        console.log ("this is testing")
+        //console.log ("this is testing")
         this.onSignIn(result);
         return result.accessToken;
       } else {
-         console.log ("this is error")
+         //console.log ("this is error")
         return { cancelled: true };
       }
     } catch (e) {
       return { error: true };
     }
   };
+
+  // Assets and front-end working start here
+      constructor(){
+        super()
+        this.state={
+          isReady:false
+        }
+      }
+      async _loadAssetsAsync() {
+        const imageAssets = cacheImages([
+
+          require('./assets/bg.jpg'),
+        ]);
+        await Promise.all([...imageAssets]);
+  }
+
   render() {
+    if (!this.state.isReady) {
+      return (
+        <AppLoading
+          startAsync={this._loadAssetsAsync}
+          onFinish={() => this.setState({ isReady: true })}
+          onError={console.warn}
+        />
+      );
+    }
     return (
-      <View style={styles.container}>
-        <Button
+      <View style={{flex: 1,backgroundColor:'white',
+      justifyContent:'flex-end' }}>
+
+        <View style={{...StyleSheet.absoluteFill}}>
+          <Image 
+          source={require('./assets/bg.jpg')}
+          style={{flex:1, height: null,width: null}}
+          />
+        </View>
+        <View style={{height:height/3,justifyContent:'center'}}>
+        <View style={{...styles.button,backgroundColor:'#00000050'}}>
+          <Text style={{fontSize:20, fontWeight:'bold',color:'white'}} onPress={() => this.signInWithGoogleAsync()} > SIGN IN WITH GOOGLE
+          </Text>
+          
+        </View>
+        <View style={{...styles.button,backgroundColor:'#2E71DC'}}>
+          <Text style={{fontSize:20, fontWeight:'bold',color:'white'}} >
+             SIGN IN WITH Facebook
+          </Text> 
+        </View>
+
+        </View>
+     
+        {/* <Button
           title=" Sign In With Google"
          onPress={() => this.signInWithGoogleAsync()}
-
           //onPress={() => console.log ("this is button")}
           
-        />
+        /> */}
       </View>
     );
   }
@@ -127,5 +190,14 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center'
+  },
+  button:{
+    backgroundColor:'white',
+    height:45,
+    marginHorizontal:50,
+    borderRadius: 50,
+    alignItems:"center",
+    justifyContent:'center',
+    marginVertical: 5,
   }
 });
